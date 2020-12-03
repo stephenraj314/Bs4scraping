@@ -14,8 +14,12 @@ writer.writerow(header)
 while True:
     # fetching source file using requests module
     result = requests.get(search_Url)
-    if result.status_code != 200 or page == 1:  # checking if webpage is reachable or page==3771
+    if result.status_code != 200:
+        # checking if webpage is reachable
         print("webpage is unreachable")
+        break
+    if page > 3881:
+        print("No More pages to scrap")
         break
     src = result.content
     soup = BeautifulSoup(src, 'lxml')  # converting result.content to soup object parsing using lxml
@@ -23,7 +27,7 @@ while True:
     # extracting each book details
     for table in soup.findAll('table',
                               attrs={'style': 'border-collapse: collapse; border: 0px solid orange; width :100%'}):
-        title = table.find('h4').text
+        title = table.find('h4').text.strip()
         for row in table.find_all('td', attrs={'valign': 'middle', 'width': '370px'}):
             # extracting each row of book details from previous extraction
             for tr in row.find_all('tr'):
@@ -37,7 +41,7 @@ while True:
                     year = tr.find('a').text
                 elif (tr.find(text='விலை')) == 'விலை':
                     price_td = tr.find_all('td')
-                    price = price_td[2].text
+                    price = price_td[2].text.strip()
                     book_details = [title, genre, author, publisher, year, price]  # storing book details in list
         all_book_details.append(book_details)
     # creating and writing all_book_details into a csv file
